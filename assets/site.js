@@ -25,3 +25,19 @@ Email: ${d.get('email')}
 Topic: ${d.get('reason')}
 
 ${d.get('details')}`);
+
+async function loadManagedContent(){
+ try{
+  const response=await fetch('/.netlify/functions/admin-data');
+  if(!response.ok)return;
+  const content=await response.json();
+  const products=Array.isArray(content.products)?content.products:[];
+  const makeCard=(p,link)=>{const article=document.createElement('article');article.className='product-card premium-product-card';const a=document.createElement('a');a.href=link;const imageWrap=document.createElement('div');imageWrap.className='product-img';const img=document.createElement('img');img.src=p.image||'';img.alt=p.name||'Thingamabob Prints product';img.loading='lazy';imageWrap.append(img);const info=document.createElement('div');info.className='product-info';const tag=document.createElement('span');tag.className='tag';tag.textContent=p.category||'3D PRINT';const title=document.createElement('h3');title.textContent=p.name||'';const desc=document.createElement('p');desc.textContent=p.description||'';const bottom=document.createElement('div');bottom.className='product-bottom';const label=document.createElement('span');label.textContent='View in gallery';const arrow=document.createElement('span');arrow.className='arrow';arrow.textContent='↗';bottom.append(label,arrow);info.append(tag,title,desc,bottom);a.append(imageWrap,info);article.append(a);return article;};
+  const gallery=document.getElementById('galleryGrid');
+  if(gallery){gallery.replaceChildren(...products.map(p=>makeCard(p,'#')));}
+  const home=document.querySelector('.home-products');
+  if(home){const featured=products.filter(p=>p.featured).slice(0,4);if(featured.length)home.replaceChildren(...featured.map(p=>makeCard(p,'gallery.html')));}
+  if(content.settings?.etsyUrl){document.querySelectorAll('a[href*="thingamabobprints.etsy.com"]').forEach(a=>a.href=content.settings.etsyUrl);}
+ }catch(error){console.warn('Managed site content unavailable; showing built-in content.',error);}
+}
+loadManagedContent();
