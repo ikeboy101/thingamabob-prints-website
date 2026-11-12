@@ -37,7 +37,7 @@ async function validSession(request,env){
  if(parts.length!==2)return false;
  const [payload,sig]=parts;
  if(await signature(payload,env.SESSION_SECRET)!==sig)return false;
- try{const data=JSON.parse(atob(payload.replace(/-/g,"+").replace(/_/g,"/")));return data.email===ADMIN_EMAIL&&data.exp>Date.now();}catch{return false;}
+ try{const raw=payload.replace(/-/g,"+").replace(/_/g,"/");const data=JSON.parse(atob(raw+"=".repeat((4-raw.length%4)%4)));return data.email===ADMIN_EMAIL&&data.exp>Date.now();}catch{return false;}
 }
 const sessionCookie=(value,maxAge)=>`${cookieName}=${value}; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=${maxAge}`;
 async function getContent(env){
@@ -56,7 +56,7 @@ export async function onRequest({request,env}){
    if(typeof body.password!=="string"||body.password!==env.ADMIN_PASSWORD)return json({error:"Incorrect password. Please try again."},401);
    const payload=b64(new TextEncoder().encode(JSON.stringify({email:ADMIN_EMAIL,exp:Date.now()+7*24*60*60*1000})));
    const value=payload+"."+await signature(payload,env.SESSION_SECRET);
-   return json({ok:true},{headers:{"Set-Cookie":sessionCookie(value,7*24*60*60)}});
+   return json({ok:true},200,{"Set-Cookie":sessionCookie(value,7*24*60*60)});
   }
   if(path==="/api/logout"&&request.method==="POST")return json({ok:true},200,{"Set-Cookie":sessionCookie("",0)});
   if(path==="/api/session"&&request.method==="GET")return json({authenticated:await validSession(request,env)});
