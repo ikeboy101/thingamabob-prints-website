@@ -2,6 +2,7 @@ import { getStore } from "@netlify/blobs";
 
 const ADMIN_EMAIL = "thingamabobprints@gmail.com";
 const store = getStore("thingamabob-site-content");
+const imageStore = getStore("thingamabob-product-images");
 
 const starter = {
   settings: { etsyUrl: "https://thingamabobprints.etsy.com", instagramUrl: "", businessEmail: ADMIN_EMAIL },
@@ -14,38 +15,66 @@ const starter = {
   ]
 };
 
-export default async (request, context) => {
-  const cors = { "Access-Control-Allow-Origin":"*", "Access-Control-Allow-Headers":"Content-Type, Authorization", "Access-Control-Allow-Methods":"GET, PUT, OPTIONS", "Content-Type":"application/json" };
-  if (request.method === "OPTIONS") return new Response("", { status:204, headers:cors });
-  if (request.method === "GET") {
-    const saved = await store.get("content", { type:"json" });
-    // If the store exists but contains no products, show the built-in starter gallery.
-    const hasProducts = saved && Array.isArray(saved.products) && saved.products.length > 0;
-    return new Response(JSON.stringify(hasProducts ? saved : starter), { status:200, headers:cors });
-  }
-  if (request.method !== "PUT") return new Response(JSON.stringify({error:"Method not allowed"}), {status:405,headers:cors});
-  // Verify the Identity JWT directly with Netlify Identity. The admin page
-  // sends the signed-in user's JWT in the Authorization header.
+async function authorizedUser(request) {
   const authorization = request.headers.get("authorization") || "";
-  if (!authorization.startsWith("Bearer ")) {
-    return new Response(JSON.stringify({error:"Please sign in again before saving."}), {status:401,headers:cors});
-  }
-  let identityUser;
+  if (!authorization.startsWith("Bearer ")) return null;
   try {
-    const identityResponse = await fetch(new URL("/.netlify/identity/user", request.url), {
-      headers: { Authorization: authorization }
-    });
-    if (identityResponse.ok) identityUser = await identityResponse.json();
+    const response = await fetch(new URL("/.netlify/identity/user", request.url), { headers: { Authorization: authorization } });
+    if (!response.ok) return null;
+    const user = await response.json();
+    return user?.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase() ? user : null;
   } catch (error) {
     console.error("Could not verify Netlify Identity session", error);
+    return null;
   }
-  if (!identityUser?.email || identityUser.email.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
-    return new Response(JSON.stringify({error:"Your admin session could not be verified. Please log out and sign in again."}), {status:401,headers:cors});
+}
+
+export default async (request) => {
+  const cors = { "Access-Control-Allow-Origin":"*", "Access-Control-Allow-Headers":"Content-Type, Authorization", "Access-Control-Allow-Methods":"GET, PUT, POST, OPTIONS" };
+  if (request.method === "OPTIONS") return new Response("", { status:204, headers:cors });
+
+  const url = new URL(request.url);
+  const imageKey = url.searchParams.get("image");
+  if (request.method === "GET" && imageKey) {
+    if (!/^products\\/[a-zA-Z0-9_-]+\\.(jpg|jpeg|png|webp|gif)$/i.test(imageKey)) return new Response("Not found", { status:404, headers:cors });
+    const entry = await imageStore.getWithMetadata(imageKey, { type:"arrayBuffer", consistency:"strong" });
+    if (!entry) return new Response("Not found", { status:404, headers:cors });
+    return new Response(entry.data, { status:200, headers:{ ...cors, "Content-Type":entry.metadata?.contentType || "application/octet-stream", "Cache-Control":"public, max-age=31536000, immutable" } });
   }
+
+  if (request.method === "GET") {
+    const saved = await store.get("content", { type:"json" });
+    const hasProducts = saved && Array.isArray(saved.products) && saved.products.length > 0;
+    return new Response(JSON.stringify(hasProducts ? saved : starter), { status:200, headers:{ ...cors, "Content-Type":"application/json" } });
+  }
+
+  if (request.method !== "PUT" && request.method !== "POST") return new Response(JSON.stringify({error:"Method not allowed"}), {status:405,headers:{ ...cors, "Content-Type":"application/json" }});
+
+  const user = await authorizedUser(request);
+  if (!user) return new Response(JSON.stringify({error:"Your admin session could not be verified. Please sign in again."}), {status:401,headers:{ ...cors, "Content-Type":"application/json" }});
+
+  if (request.method === "POST") {
+    try {
+      const form = await request.formData();
+      const file = form.get("file");
+      if (!(file instanceof File) || !file.size) return new Response(JSON.stringify({error:"Choose an image file first."}), {status:400,headers:{ ...cors, "Content-Type":"application/json" }});
+      const allowed = { "image/jpeg":"jpg", "image/png":"png", "image/webp":"webp", "image/gif":"gif" };
+      const extension = allowed[file.type];
+      if (!extension) return new Response(JSON.stringify({error:"Please use a JPG, PNG, WebP or GIF image."}), {status:415,headers:{ ...cors, "Content-Type":"application/json" }});
+      if (file.size > 8 * 1024 * 1024) return new Response(JSON.stringify({error:"Images must be 8 MB or smaller."}), {status:413,headers:{ ...cors, "Content-Type":"application/json" }});
+      const key = `products/${crypto.randomUUID()}.${extension}`;
+      await imageStore.set(key, file, { metadata:{ contentType:file.type, uploadedBy:user.email } });
+      return new Response(JSON.stringify({ ok:true, image:`/.netlify/functions/admin-data?image=${key}` }), {status:201,headers:{ ...cors, "Content-Type":"application/json" }});
+    } catch (error) {
+      console.error("Image upload failed", error);
+      return new Response(JSON.stringify({error:"The image could not be uploaded. Please try again."}), {status:500,headers:{ ...cors, "Content-Type":"application/json" }});
+    }
+  }
+
   let body;
-  try { body = await request.json(); } catch { return new Response(JSON.stringify({error:"Invalid JSON"}),{status:400,headers:cors}); }
-  if (!body || !Array.isArray(body.products) || !body.settings) return new Response(JSON.stringify({error:"Invalid site content"}),{status:400,headers:cors});
-  if (body.products.length > 200) return new Response(JSON.stringify({error:"Too many products"}),{status:400,headers:cors});
+  try { body = await request.json(); } catch { return new Response(JSON.stringify({error:"Invalid JSON"}),{status:400,headers:{ ...cors, "Content-Type":"application/json" }}); }
+  if (!body || !Array.isArray(body.products) || !body.settings) return new Response(JSON.stringify({error:"Invalid site content"}),{status:400,headers:{ ...cors, "Content-Type":"application/json" }});
+  if (body.products.length > 200) return new Response(JSON.stringify({error:"Too many products"}),{status:400,headers:{ ...cors, "Content-Type":"application/json" }});
   await store.setJSON("content", body);
-  return new Response(JSON.stringify({ok:true}), {status:200,headers:cors});
+  return new Response(JSON.stringify({ok:true}), {status:200,headers:{ ...cors, "Content-Type":"application/json" }});
 };
