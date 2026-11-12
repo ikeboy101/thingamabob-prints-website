@@ -36,7 +36,7 @@ export default async (request) => {
   const url = new URL(request.url);
   const imageKey = url.searchParams.get("image");
   if (request.method === "GET" && imageKey) {
-    if (!/^products\\/[a-zA-Z0-9_-]+\\.(jpg|jpeg|png|webp|gif)$/i.test(imageKey)) return new Response("Not found", { status:404, headers:cors });
+    if (!/^products\/[a-zA-Z0-9_-]+\.(jpg|jpeg|png|webp|gif)$/i.test(imageKey)) return new Response("Not found", { status:404, headers:cors });
     const entry = await imageStore.getWithMetadata(imageKey, { type:"arrayBuffer", consistency:"strong" });
     if (!entry) return new Response("Not found", { status:404, headers:cors });
     return new Response(entry.data, { status:200, headers:{ ...cors, "Content-Type":entry.metadata?.contentType || "application/octet-stream", "Cache-Control":"public, max-age=31536000, immutable" } });
