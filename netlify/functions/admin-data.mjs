@@ -19,7 +19,9 @@ export default async (request, context) => {
   if (request.method === "OPTIONS") return new Response("", { status:204, headers:cors });
   if (request.method === "GET") {
     const saved = await store.get("content", { type:"json" });
-    return new Response(JSON.stringify(saved || starter), { status:200, headers:cors });
+    // If the store exists but contains no products, show the built-in starter gallery.
+    const hasProducts = saved && Array.isArray(saved.products) && saved.products.length > 0;
+    return new Response(JSON.stringify(hasProducts ? saved : starter), { status:200, headers:cors });
   }
   if (request.method !== "PUT") return new Response(JSON.stringify({error:"Method not allowed"}), {status:405,headers:cors});
   const user = context?.clientContext?.user;
