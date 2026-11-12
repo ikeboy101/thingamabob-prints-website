@@ -24,9 +24,23 @@ export default async (request, context) => {
     return new Response(JSON.stringify(hasProducts ? saved : starter), { status:200, headers:cors });
   }
   if (request.method !== "PUT") return new Response(JSON.stringify({error:"Method not allowed"}), {status:405,headers:cors});
-  const user = context?.clientContext?.user;
-  if (!user?.email || user.email.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
-    return new Response(JSON.stringify({error:"Unauthorized"}), {status:401,headers:cors});
+  // Verify the Identity JWT directly with Netlify Identity. The admin page
+  // sends the signed-in user's JWT in the Authorization header.
+  const authorization = request.headers.get("authorization") || "";
+  if (!authorization.startsWith("Bearer ")) {
+    return new Response(JSON.stringify({error:"Please sign in again before saving."}), {status:401,headers:cors});
+  }
+  let identityUser;
+  try {
+    const identityResponse = await fetch(new URL("/.netlify/identity/user", request.url), {
+      headers: { Authorization: authorization }
+    });
+    if (identityResponse.ok) identityUser = await identityResponse.json();
+  } catch (error) {
+    console.error("Could not verify Netlify Identity session", error);
+  }
+  if (!identityUser?.email || identityUser.email.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
+    return new Response(JSON.stringify({error:"Your admin session could not be verified. Please log out and sign in again."}), {status:401,headers:cors});
   }
   let body;
   try { body = await request.json(); } catch { return new Response(JSON.stringify({error:"Invalid JSON"}),{status:400,headers:cors}); }
