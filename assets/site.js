@@ -13,6 +13,21 @@ document.querySelectorAll('[data-link="instagram"]').forEach(a=>{
   a.href=SITE_SETTINGS.instagramUrl || "#";
   a.addEventListener('click',e=>{if(!SITE_SETTINGS.instagramUrl){e.preventDefault();alert("Add your Instagram URL in assets/site.js to activate this link.");}});
 });
+
+async function applyWebsiteSettings(){
+ try{
+  const response=await fetch('/.netlify/functions/admin-data');
+  if(!response.ok)return;
+  const data=await response.json(),s=data.settings||{};
+  document.querySelectorAll('.announcement').forEach(el=>{if(s.announcementText)el.textContent=s.announcementText;});
+  const fields=['homeEyebrow','homeTitleOne','homeTitleTwo','homeDescription','homeSectionTitle','homeSectionDescription','customTitle','customDescription','aboutTitle','aboutIntro','aboutStory'];
+  fields.forEach(key=>{const el=document.querySelector('[data-edit="'+key+'"]');if(el&&s[key])el.textContent=s[key];});
+  if(s.businessEmail)document.querySelectorAll('[data-email]').forEach(el=>{el.textContent=s.businessEmail;el.href='mailto:'+s.businessEmail;});
+  if(s.etsyUrl)document.querySelectorAll('[data-etsy]').forEach(el=>el.href=s.etsyUrl);
+ }catch(error){console.warn('Website settings unavailable',error);}
+}
+applyWebsiteSettings();
+
 const year=document.getElementById('year'); if(year) year.textContent=new Date().getFullYear();
 const filters=document.getElementById('filters');
 if(filters){filters.addEventListener('click',e=>{const b=e.target.closest('[data-filter]');if(!b)return;filters.querySelectorAll('.pill').forEach(x=>x.classList.remove('active'));b.classList.add('active');const f=b.dataset.filter;document.querySelectorAll('#galleryGrid .product-card').forEach(c=>c.style.display=(f==='all'||c.dataset.category===f)?'':'none');});}
