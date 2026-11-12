@@ -19,4 +19,37 @@
 <div><a class="brand" href="index.html"><span class="brand-mark">★</span><span style="color:white">THINGAMABOB PRINTS</span></a><p>Fun, thoughtful 3D prints and geeky creations, made with care in Minnesota.</p></div>
 <div><h4>EXPLORE</h4><div class="footer-links"><a href="index.html">Home</a><a href="gallery.html">Print gallery</a><a href="shop.html">Shop on Etsy</a></div></div>
 <div><h4>GET IN TOUCH</h4><div class="footer-links"><a href="contact.html">Contact & custom requests</a><a href="https://thingamabobprints.etsy.com" target="_blank" rel="noopener">Etsy shop ↗</a></div></div>
-</div><div class="footer-bottom"><span>© <span id="year"></span> Thingamabob Prints. All rights reserved.</span><span>Designed with care. Made to grow.</span></div></div></footer><script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script><script>netlifyIdentity.init();</script><script src="assets/site.js"></script></body></html>
+</div><div class="footer-bottom"><span>© <span id="year"></span> Thingamabob Prints. All rights reserved.</span><span>Designed with care. Made to grow.</span></div></div></footer><section id="passwordRecovery" hidden style="position:fixed;inset:0;z-index:9999;background:rgba(248,248,244,.98);display:none;place-items:center;padding:22px"><div style="width:min(100%,440px);background:#fff;border:1px solid #ddd;border-radius:12px;padding:26px;box-shadow:0 12px 40px rgba(0,0,0,.12)"><p style="font-size:12px;letter-spacing:.12em;font-weight:700">THINGAMABOB PRINTS</p><h1 style="font-size:28px;margin:8px 0">Choose a new password</h1><p>Enter a new password for your admin account.</p><form id="recoveryForm"><label style="display:block;font-size:13px;font-weight:700;margin:14px 0 6px" for="newAdminPassword">New password</label><input id="newAdminPassword" type="password" minlength="8" autocomplete="new-password" required style="box-sizing:border-box;width:100%;padding:13px;border:1px solid #ccc;border-radius:6px"><label style="display:block;font-size:13px;font-weight:700;margin:14px 0 6px" for="confirmAdminPassword">Confirm new password</label><input id="confirmAdminPassword" type="password" minlength="8" autocomplete="new-password" required style="box-sizing:border-box;width:100%;padding:13px;border:1px solid #ccc;border-radius:6px"><button type="submit" class="btn sage" style="margin-top:18px;width:100%">Save new password</button><p id="recoveryStatus" role="status" style="font-size:13px;min-height:20px"></p></form></div></section><script type="module">
+const params = new URLSearchParams(window.location.hash.slice(1));
+const recoveryToken = params.get("recovery_token");
+if (recoveryToken) {
+  const panel = document.getElementById("passwordRecovery");
+  panel.hidden = false;
+  panel.style.display = "grid";
+  try {
+    const { recoverPassword } = await import("https://esm.sh/@netlify/identity");
+    document.getElementById("recoveryForm").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const password = document.getElementById("newAdminPassword").value;
+      const confirm = document.getElementById("confirmAdminPassword").value;
+      const status = document.getElementById("recoveryStatus");
+      if (password.length < 8) { status.textContent = "Use at least 8 characters."; return; }
+      if (password !== confirm) { status.textContent = "The passwords do not match."; return; }
+      const button = event.currentTarget.querySelector("button");
+      button.disabled = true;
+      status.textContent = "Saving your new password…";
+      try {
+        await recoverPassword(recoveryToken, password);
+        history.replaceState(null, "", window.location.pathname);
+        status.textContent = "Password updated. Taking you to the admin sign-in…";
+        window.location.href = "/admin/";
+      } catch (error) {
+        status.textContent = error?.message || "That recovery link is invalid or expired. Request a new one from Netlify.";
+        button.disabled = false;
+      }
+    });
+  } catch (error) {
+    document.getElementById("recoveryStatus").textContent = "The password recovery tool could not load. Please try again shortly.";
+  }
+}
+</script><script src="assets/site.js"></script></body></html>
