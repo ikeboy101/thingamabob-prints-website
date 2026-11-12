@@ -85,3 +85,5 @@ body{background:var(--paper);color:var(--ink)}
 .gallery-lightbox-close{position:sticky;top:0;align-self:flex-end;z-index:1;border:0;background:#292d29;color:white;width:38px;height:38px;font-size:26px;line-height:1;cursor:pointer;margin-bottom:8px}
 @media(max-width:800px){.gallery-grid{columns:2 220px;column-gap:16px}.gallery-item{margin-bottom:16px}}
 @media(max-width:520px){.gallery-grid{columns:1}.gallery-item{margin-bottom:18px;padding:8px 8px 0}.gallery-caption{padding:14px 7px 16px}}
+
+.gallery-grid .gallery-image-button{aspect-ratio:auto;display:block}
