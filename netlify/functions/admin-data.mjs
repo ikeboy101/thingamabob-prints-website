@@ -77,5 +77,9 @@ export default async (request) => {
   if (!body || !Array.isArray(body.products) || !body.settings) return new Response(JSON.stringify({error:"Invalid site content"}),{status:400,headers:{ ...cors, "Content-Type":"application/json" }});
   if (body.products.length > 200) return new Response(JSON.stringify({error:"Too many products"}),{status:400,headers:{ ...cors, "Content-Type":"application/json" }});
   await store.setJSON("content", body);
-  return new Response(JSON.stringify({ok:true}), {status:200,headers:{ ...cors, "Content-Type":"application/json" }});
+  const verified = await store.get("content", { type:"json", consistency:"strong" });
+  if (!verified || JSON.stringify(verified) !== JSON.stringify(body)) {
+    return new Response(JSON.stringify({error:"The save could not be verified in online storage. Please try again."}), {status:500,headers:{ ...cors, "Content-Type":"application/json" }});
+  }
+  return new Response(JSON.stringify({ok:true, verified:true}), {status:200,headers:{ ...cors, "Content-Type":"application/json", "Cache-Control":"no-store, max-age=0" }});
 };
