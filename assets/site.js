@@ -16,7 +16,7 @@ document.querySelectorAll('[data-link="instagram"]').forEach(a=>{
 
 async function applyWebsiteSettings(){
  try{
-  const response=await fetch('/.netlify/functions/admin-data', {cache:'no-store'});
+  const response=await fetch('/api/admin-data', {cache:'no-store'});
   if(!response.ok)return;
   const data=await response.json(),s=data.settings||{};
   if(s.businessEmail)SITE_SETTINGS.businessEmail=s.businessEmail;
@@ -45,7 +45,7 @@ ${d.get('details')}`);
 
 async function loadManagedContent(){
  try{
-  const response=await fetch('/.netlify/functions/admin-data');
+  const response=await fetch('/api/admin-data',{cache:'no-store'});
   if(!response.ok)return;
   const content=await response.json();
   const products=Array.isArray(content.products)?content.products:[];
