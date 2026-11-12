@@ -43,10 +43,11 @@ export default async (request) => {
   }
 
   if (request.method === "GET") {
-    const saved = await store.get("content", { type:"json" });
-    const hasProducts = saved && Array.isArray(saved.products) && saved.products.length > 0;
-    const responseContent = hasProducts ? { ...saved, settings:{ ...starter.settings, ...(saved.settings || {}) } } : starter;
-    return new Response(JSON.stringify(responseContent), { status:200, headers:{ ...cors, "Content-Type":"application/json" } });
+    const saved = await store.get("content", { type:"json", consistency:"strong" });
+    const responseContent = saved
+      ? { ...saved, settings:{ ...starter.settings, ...(saved.settings || {}) }, products:Array.isArray(saved.products) ? saved.products : starter.products }
+      : starter;
+    return new Response(JSON.stringify(responseContent), { status:200, headers:{ ...cors, "Content-Type":"application/json", "Cache-Control":"no-store, max-age=0" } });
   }
 
   if (request.method !== "PUT" && request.method !== "POST") return new Response(JSON.stringify({error:"Method not allowed"}), {status:405,headers:{ ...cors, "Content-Type":"application/json" }});
