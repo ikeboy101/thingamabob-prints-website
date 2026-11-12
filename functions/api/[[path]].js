@@ -60,6 +60,33 @@ export async function onRequest({request,env}){
   }
   if(path==="/api/logout"&&request.method==="POST")return json({ok:true},200,{"Set-Cookie":sessionCookie("",0)});
   if(path==="/api/session"&&request.method==="GET")return json({authenticated:await validSession(request,env)});
+  if(path==="/api/import-netlify"&&request.method==="POST"){
+   if(!await validSession(request,env))return json({error:"Please sign in again before importing."},401);
+   const source="https://majestic-elf-c90203.netlify.app/.netlify/functions/admin-data";
+   const response=await fetch(source,{headers:{"Cache-Control":"no-cache"}});
+   if(!response.ok)return json({error:"Could not retrieve the existing website content from Netlify."},502);
+   const imported=await response.json();
+   if(!imported||!Array.isArray(imported.products)||!imported.settings)return json({error:"The existing website returned invalid content."},502);
+   let migratedImages=0;
+   for(const product of imported.products){
+    const image=product.image||"";
+    const prefix="/.netlify/functions/admin-data?image=";
+    if(image.startsWith(prefix)){
+     const key=image.slice(prefix.length);
+     if(!/^products\/[a-zA-Z0-9_-]+\.(jpg|jpeg|png|webp|gif)$/i.test(key))continue;
+     const oldImage=await fetch("https://majestic-elf-c90203.netlify.app"+image);
+     if(!oldImage.ok)continue;
+     const type=oldImage.headers.get("content-type")||"image/jpeg";
+     const ext=({"image/jpeg":"jpg","image/png":"png","image/webp":"webp","image/gif":"gif"})[type.split(";")[0]]||key.split(".").pop();
+     const newKey="products/"+crypto.randomUUID()+"."+ext;
+     await env.IMAGES.put(newKey,await oldImage.arrayBuffer(),{httpMetadata:{contentType:type}});
+     product.image="/api/images/"+newKey;
+     migratedImages++;
+    }
+   }
+   await env.DB.prepare("INSERT INTO site_content (id,data,updated_at) VALUES ('main',?,CURRENT_TIMESTAMP) ON CONFLICT(id) DO UPDATE SET data=excluded.data, updated_at=CURRENT_TIMESTAMP").bind(JSON.stringify(imported)).run();
+   return json({ok:true,products:imported.products.length,migratedImages});
+  }
   if(path==="/api/admin-data"&&request.method==="GET")return json(await getContent(env));
   if(path==="/api/admin-data"&&request.method==="PUT"){
    if(!await validSession(request,env))return json({error:"Your admin session expired. Please sign in again."},401);
