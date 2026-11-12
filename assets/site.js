@@ -19,7 +19,8 @@ async function applyWebsiteSettings(){
   const response=await fetch('/.netlify/functions/admin-data');
   if(!response.ok)return;
   const data=await response.json(),s=data.settings||{};
-  if(s.businessEmail)SITE_SETTINGS.businessEmail=s.businessEmail;\n  if(s.etsyUrl)SITE_SETTINGS.etsyUrl=s.etsyUrl;
+  if(s.businessEmail)SITE_SETTINGS.businessEmail=s.businessEmail;
+  if(s.etsyUrl)SITE_SETTINGS.etsyUrl=s.etsyUrl;
   document.querySelectorAll('.announcement').forEach(el=>{if(s.announcementText)el.textContent=s.announcementText;});
   const fields=['homeEyebrow','homeTitleOne','homeTitleTwo','homeDescription','homeSectionTitle','homeSectionDescription','customTitle','customDescription','aboutTitle','aboutIntro','aboutStory'];
   fields.forEach(key=>{const el=document.querySelector('[data-edit="'+key+'"]');if(el&&s[key])el.textContent=s[key];});
