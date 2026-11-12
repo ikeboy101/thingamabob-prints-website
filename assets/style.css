@@ -63,3 +63,25 @@ body{background:var(--paper);color:var(--ink)}
 .form-note{font-size:11px;color:#858b81;line-height:1.6}
 @media(max-width:800px){.shop-feature,.contact-layout{grid-template-columns:1fr;gap:32px}.gallery-intro-row{display:block}.gallery-key{margin-top:12px}}
 @media(max-width:520px){.shop-feature-photos{grid-template-rows:130px 130px;gap:8px;padding:9px}.contact-layout{gap:25px}}
+
+
+/* Gallery portfolio masonry layout */
+.gallery-grid{display:block;columns:3 260px;column-gap:24px}
+.gallery-item{display:inline-block;width:100%;break-inside:avoid;margin:0 0 24px;background:#fff;border:1px solid var(--line);padding:10px 10px 0;vertical-align:top}
+.gallery-image-button{display:block;width:100%;height:auto;aspect-ratio:auto;border:0;padding:0;background:#eef0e9;overflow:hidden;cursor:zoom-in}
+.gallery-image-button img{display:block;width:100%;height:auto;max-height:560px;object-fit:contain;transition:transform .35s ease}
+.gallery-image-button:hover img{transform:scale(1.025)}
+.gallery-caption{padding:16px 8px 19px}
+.gallery-caption .tag{margin-bottom:9px}
+.gallery-caption h3{font:600 19px 'Space Grotesk';margin:0 0 7px;letter-spacing:-.025em}
+.gallery-caption p{font-size:13px;line-height:1.65;color:var(--muted);margin:0}
+.gallery-lightbox{position:fixed;inset:0;z-index:100;background:rgba(24,27,24,.88);display:none;align-items:center;justify-content:center;padding:22px}
+.gallery-lightbox.open{display:flex}
+.gallery-lightbox-panel{position:relative;max-width:min(900px,100%);max-height:100%;background:var(--paper);padding:14px;display:flex;flex-direction:column;align-items:center;overflow:auto}
+.gallery-lightbox-photo{display:block;max-width:100%;max-height:72vh;width:auto;height:auto;object-fit:contain}
+.gallery-lightbox-copy{width:100%;padding:14px 8px 4px}
+.gallery-lightbox-copy strong{font:600 20px 'Space Grotesk'}
+.gallery-lightbox-copy p{color:var(--muted);font-size:13px;line-height:1.6;margin:6px 0 0}
+.gallery-lightbox-close{position:sticky;top:0;align-self:flex-end;z-index:1;border:0;background:#292d29;color:white;width:38px;height:38px;font-size:26px;line-height:1;cursor:pointer;margin-bottom:8px}
+@media(max-width:800px){.gallery-grid{columns:2 220px;column-gap:16px}.gallery-item{margin-bottom:16px}}
+@media(max-width:520px){.gallery-grid{columns:1}.gallery-item{margin-bottom:18px;padding:8px 8px 0}.gallery-caption{padding:14px 7px 16px}}
