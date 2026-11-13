@@ -126,3 +126,31 @@ body{background:var(--paper);color:var(--ink)}
 .etsy-rating-note{font-size:10px;color:#858b81;margin:12px 0 0}
 @media(max-width:800px){.etsy-feature-card{grid-template-columns:1fr;gap:28px}.etsy-feature-visual{min-height:320px}}
 @media(max-width:520px){.etsy-feature-section{padding:48px 0}.etsy-feature-card{padding:23px 18px;gap:25px}.etsy-feature-rating{gap:9px;flex-wrap:wrap}.etsy-feature-stars{font-size:22px}.etsy-feature-visual{min-height:290px}.etsy-feature-star{width:112px;height:112px}}
+
+
+/* Etsy storefront preview card */
+.etsy-feature-visual{display:block;min-width:0;min-height:0;background:transparent;padding:0;color:inherit;overflow:visible}
+.etsy-feature-visual:before,.etsy-feature-visual:after{display:none}
+.etsy-shop-preview{width:100%;background:#fff;border:1px solid #e4e5df;box-shadow:0 16px 38px rgba(35,43,35,.12);overflow:hidden;text-align:left;color:#292d29}
+.etsy-shop-banner{height:150px;padding:19px 16px;background:#447d67 url("assets/products/holiday-collection.jpg") center 42%/cover;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.etsy-shop-banner:before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(29,63,48,.78),rgba(35,77,59,.45))}
+.etsy-shop-banner-title,.etsy-shop-banner-tagline{position:relative;z-index:1;color:#fff;text-shadow:0 1px 5px #14291f}
+.etsy-shop-banner-title{font:700 clamp(19px,2.3vw,27px) 'Space Grotesk';letter-spacing:.02em}
+.etsy-shop-banner-title b{display:block;font:700 25px Georgia,serif;color:#f7d85b}
+.etsy-shop-banner-tagline{font-size:10px;letter-spacing:.08em;margin-top:7px}
+.etsy-shop-profile{display:flex;align-items:center;gap:12px;padding:14px 15px 9px}
+.etsy-shop-avatar{width:48px;height:48px;flex:0 0 48px;border:1px solid #e5e7df;border-radius:7px;padding:4px;background:#f7f8f3}
+.etsy-shop-profile-copy{display:grid;gap:3px;min-width:0}
+.etsy-shop-profile-copy strong{font:700 15px 'Space Grotesk'}
+.etsy-shop-profile-copy span{font-size:10px;color:#70766f}
+.etsy-shop-review-line{display:flex;align-items:center;gap:6px;padding:4px 15px 13px;font-size:10px;color:#555d54;flex-wrap:wrap}
+.etsy-shop-stars{font-size:15px;letter-spacing:1px;color:#d4a52b}
+.etsy-shop-review-line strong{font-size:13px;color:#292d29}
+.etsy-shop-review-line i{height:13px;border-left:1px solid #d9ddd5;margin:0 3px}
+.etsy-shop-tabs{display:flex;justify-content:space-around;border-top:1px solid #eceee8;border-bottom:1px solid #eceee8;padding:10px 4px;font-size:10px;color:#777d75}
+.etsy-shop-tabs b{color:#292d29;border-bottom:2px solid #292d29;padding-bottom:9px;margin-bottom:-11px}
+.etsy-shop-product-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:12px}
+.etsy-shop-product-grid img{width:100%;aspect-ratio:1/1;object-fit:cover;background:#f1f2ed;border-radius:3px}
+.etsy-shop-preview-footer{display:flex;align-items:center;justify-content:space-between;padding:12px 15px;background:#f6f7f2;color:#687963;font-size:10px;font-weight:700;letter-spacing:.1em}
+.etsy-shop-preview-footer span{font-size:18px}
+@media(max-width:520px){.etsy-feature-card{display:flex;flex-direction:column;gap:25px}.etsy-feature-copy{width:100%}.etsy-feature-visual{width:100%}.etsy-shop-banner{height:118px}.etsy-shop-profile{padding:11px 12px 7px}.etsy-shop-review-line{padding:4px 12px 10px}.etsy-shop-product-grid{gap:6px;padding:9px}.etsy-shop-preview-footer{padding:10px 12px}}
