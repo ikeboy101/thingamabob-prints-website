@@ -94,3 +94,35 @@ body{background:var(--paper);color:var(--ink)}
 .brand-mark img{display:block;width:100%;height:100%;object-fit:contain}
 .footer .brand-mark{background:transparent}
 @media(max-width:520px){.brand-mark{width:42px;height:42px;flex-basis:42px}}
+
+
+/* Homepage Etsy shop and review feature */
+.etsy-feature-section{padding:66px 0;background:#f0f1eb}
+.etsy-feature-card{display:grid;grid-template-columns:1.05fr .95fr;gap:42px;align-items:center;background:#fbfcf8;border:1px solid var(--line);padding:clamp(24px,4vw,48px)}
+.etsy-feature-copy h2{font:600 clamp(32px,4vw,46px)/1.04 'Space Grotesk';letter-spacing:-.055em;margin:14px 0}
+.etsy-feature-copy>p{color:var(--muted);font-size:14px;line-height:1.75;max-width:480px}
+.etsy-feature-rating{display:flex;align-items:center;gap:14px;margin:25px 0 18px}
+.etsy-feature-stars{font-size:25px;letter-spacing:2px;color:#d6a52c;white-space:nowrap}
+.etsy-feature-rating strong{font:700 23px 'Space Grotesk'}
+.etsy-feature-rating span{font-size:12px;color:var(--muted)}
+.etsy-feature-stats{display:flex;gap:34px;margin-bottom:25px}
+.etsy-feature-stats div{display:grid;gap:3px}
+.etsy-feature-stats strong{font:600 20px 'Space Grotesk'}
+.etsy-feature-stats span{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.12em}
+.etsy-feature-button{margin-top:2px}
+.etsy-feature-visual{min-height:360px;background:#447d67;color:white;padding:26px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;position:relative;overflow:hidden;transition:transform .2s}
+.etsy-feature-visual:before,.etsy-feature-visual:after{content:"";position:absolute;border:1px solid #ffffff35;border-radius:50%;width:320px;height:320px}
+.etsy-feature-visual:before{transform:translate(-43%,-45%)}
+.etsy-feature-visual:after{transform:translate(43%,45%)}
+.etsy-feature-visual:hover{transform:translateY(-3px)}
+.etsy-visual-top{position:absolute;top:22px;left:24px;right:24px;display:flex;align-items:center;justify-content:space-between}
+.etsy-wordmark{font:700 31px Georgia,serif;letter-spacing:-.08em}
+.etsy-visual-pill{font-size:9px;letter-spacing:.16em;border:1px solid #ffffff70;padding:7px 9px}
+.etsy-feature-star{width:130px;height:130px;margin:8px 0 16px;position:relative;z-index:1}
+.etsy-feature-star img{width:100%;height:100%;object-fit:contain}
+.etsy-feature-visual>strong{font:700 20px 'Space Grotesk';letter-spacing:.04em;position:relative;z-index:1}
+.etsy-visual-caption{font-size:12px;color:#e5eee8;margin-top:8px;position:relative;z-index:1}
+.etsy-visual-link{margin-top:25px;padding:11px 17px;background:#f8f8f4;color:#293329;font-size:12px;font-weight:700;position:relative;z-index:1}
+.etsy-rating-note{font-size:10px;color:#858b81;margin:12px 0 0}
+@media(max-width:800px){.etsy-feature-card{grid-template-columns:1fr;gap:28px}.etsy-feature-visual{min-height:320px}}
+@media(max-width:520px){.etsy-feature-section{padding:48px 0}.etsy-feature-card{padding:23px 18px;gap:25px}.etsy-feature-rating{gap:9px;flex-wrap:wrap}.etsy-feature-stars{font-size:22px}.etsy-feature-visual{min-height:290px}.etsy-feature-star{width:112px;height:112px}}
