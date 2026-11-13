@@ -220,3 +220,26 @@ body{background:var(--paper);color:var(--ink)}
   #galleryGrid .gallery-caption p{font-size:11px}
   #galleryGrid .gallery-caption .tag{font-size:8px;padding:5px 6px}
 }
+
+
+/* Shop page: real Etsy storefront preview */
+.shop-storefront-section{padding:clamp(48px,7vw,88px) 0}
+.shop-storefront-layout{display:grid;grid-template-columns:.82fr 1.18fr;gap:clamp(28px,5vw,64px);align-items:center}
+.shop-storefront-copy h2{font:600 clamp(32px,4vw,46px)/1.06 'Space Grotesk';letter-spacing:-.05em;margin:14px 0}
+.shop-storefront-copy .lead{font-size:15px;line-height:1.75;color:var(--muted)}
+.shop-storefront-rating{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin:24px 0 15px}
+.shop-storefront-rating .shop-stars{font-size:22px;letter-spacing:1px;color:#d3a42d}
+.shop-storefront-rating strong{font:700 22px 'Space Grotesk'}
+.shop-storefront-rating span:last-child{font-size:12px;color:var(--muted)}
+.shop-storefront-stats{display:flex;gap:30px;margin:0 0 25px}
+.shop-storefront-stats div{display:grid;gap:3px}
+.shop-storefront-stats strong{font:600 21px 'Space Grotesk'}
+.shop-storefront-stats span{font-size:10px;text-transform:uppercase;letter-spacing:.13em;color:var(--muted)}
+.shop-storefront-note{font-size:11px;color:var(--muted);line-height:1.6;margin-top:16px}
+.shop-storefront-shot{display:block;position:relative;min-width:0;background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden;box-shadow:0 18px 48px rgba(32,39,31,.12);transition:transform .25s ease,box-shadow .25s ease}
+.shop-storefront-shot:hover{transform:translateY(-3px);box-shadow:0 24px 55px rgba(32,39,31,.16)}
+.shop-storefront-shot img{display:block;width:100%;height:auto;object-fit:cover}
+.shop-shot-cta{position:absolute;right:14px;bottom:14px;display:flex;gap:15px;align-items:center;padding:12px 16px;background:rgba(35,43,36,.92);color:white;font-size:10px;letter-spacing:.12em;font-weight:700;border-radius:4px}
+.shop-shot-cta b{font-size:17px}
+@media(max-width:800px){.shop-storefront-layout{grid-template-columns:1fr;gap:28px}.shop-storefront-copy{max-width:620px}.shop-storefront-shot{max-width:650px;margin:0 auto;width:100%}}
+@media(max-width:520px){.shop-storefront-section{padding:42px 0}.shop-storefront-rating{gap:7px}.shop-storefront-rating .shop-stars{font-size:20px}.shop-storefront-stats{gap:24px}.shop-shot-cta{right:9px;bottom:9px;padding:10px 12px;font-size:9px}}
