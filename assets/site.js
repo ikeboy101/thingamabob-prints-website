@@ -58,11 +58,16 @@ async function loadManagedContent(){
    if(!gallery)return;
    const query=(gallerySearch?.value||'').trim().toLocaleLowerCase();
    let shown=0;
-   gallery.querySelectorAll('.product-card').forEach(card=>{
+   gallery.querySelectorAll('.gallery-item, .product-card').forEach(card=>{
     const title=card.querySelector('h3')?.textContent||'';
     const match=!query||title.toLocaleLowerCase().includes(query);
     card.hidden=!match;
-    if(match)shown++;
+    card.classList.toggle('search-match',Boolean(query&&match));
+    let marker=card.querySelector('.search-match-label');
+    if(query&&match){
+     if(!marker){marker=document.createElement('span');marker.className='search-match-label';marker.textContent='SEARCH MATCH';card.querySelector('.gallery-caption,.product-info')?.prepend(marker);}
+     shown++;
+    }else if(marker)marker.remove();
    });
    if(gallerySearchStatus){
     gallerySearchStatus.textContent=query?(shown?shown+' '+(shown===1?'matching design':'matching designs')+' found.':'No titles match “'+gallerySearch.value.trim()+'”. Try another search.'):'Search the titles of our gallery pieces.';
