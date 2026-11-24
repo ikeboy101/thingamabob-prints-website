@@ -293,3 +293,34 @@ body{background:var(--paper);color:var(--ink)}
   #galleryGrid .gallery-image-button,
   #galleryGrid .product-img{padding:7px!important}
 }
+
+
+/* Final gallery image fit: preserve each source photo's natural aspect ratio */
+#galleryGrid .gallery-image-button,
+#galleryGrid .product-img{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  aspect-ratio:1/1!important;
+  width:100%!important;
+  height:auto!important;
+  padding:12px!important;
+  box-sizing:border-box!important;
+  overflow:hidden!important;
+  background:#f1f2ec!important;
+}
+#galleryGrid .gallery-image-button img,
+#galleryGrid .product-img img{
+  display:block!important;
+  width:auto!important;
+  height:auto!important;
+  max-width:100%!important;
+  max-height:100%!important;
+  object-fit:contain!important;
+  object-position:center!important;
+  flex:0 1 auto!important;
+}
+@media(max-width:420px){
+  #galleryGrid .gallery-image-button,
+  #galleryGrid .product-img{padding:8px!important}
+}
