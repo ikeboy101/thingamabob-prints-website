@@ -51,8 +51,34 @@ async function loadManagedContent(){
   const products=Array.isArray(content.products)?content.products:[];
   const makeCard=(p,link,isGallery=false)=>{const article=document.createElement('article');article.className=isGallery?'gallery-item':'product-card premium-product-card';const imageWrap=document.createElement(isGallery?'button':'div');imageWrap.className=isGallery?'gallery-image-button product-img':'product-img';if(isGallery){imageWrap.type='button';imageWrap.setAttribute('aria-label','View larger photo of '+(p.name||'product'));}const img=document.createElement('img');img.src=p.image||'';img.alt=p.name||'Thingamabob Prints product';img.loading='lazy';imageWrap.append(img);const info=document.createElement('div');info.className=isGallery?'gallery-caption':'product-info';const tag=document.createElement('span');tag.className='tag';tag.textContent=p.category||'3D PRINT';const title=document.createElement('h3');title.textContent=p.name||'';const desc=document.createElement('p');desc.textContent=p.description||'';info.append(tag,title,desc);if(isGallery){imageWrap.addEventListener('click',()=>openGalleryLightbox(p));article.append(imageWrap,info);}else{const a=document.createElement('a');a.href=link;const bottom=document.createElement('div');bottom.className='product-bottom';const label=document.createElement('span');label.textContent='View in gallery';const arrow=document.createElement('span');arrow.className='arrow';arrow.textContent='↗';bottom.append(label,arrow);info.append(bottom);a.append(imageWrap,info);article.append(a);}return article;};
   function openGalleryLightbox(p){let modal=document.getElementById('galleryLightbox');if(!modal){modal=document.createElement('div');modal.id='galleryLightbox';modal.className='gallery-lightbox';modal.innerHTML='<div class="gallery-lightbox-panel" role="dialog" aria-modal="true" aria-label="Product photo"><button class="gallery-lightbox-close" type="button" aria-label="Close photo">×</button><img class="gallery-lightbox-photo" alt=""><div class="gallery-lightbox-copy"><strong></strong><p></p></div></div>';document.body.append(modal);modal.addEventListener('click',e=>{if(e.target===modal||e.target.closest('.gallery-lightbox-close'))modal.classList.remove('open');});}modal.querySelector('img').src=p.image||'';modal.querySelector('img').alt=p.name||'Product photo';modal.querySelector('strong').textContent=p.name||'';modal.querySelector('p').textContent=p.description||'';modal.classList.add('open');modal.querySelector('button').focus();}
+  const gallerySearch=document.getElementById('gallerySearch');
+  const gallerySearchClear=document.getElementById('gallerySearchClear');
+  const gallerySearchStatus=document.getElementById('gallerySearchStatus');
+  function filterGalleryByTitle(){
+   if(!gallery)return;
+   const query=(gallerySearch?.value||'').trim().toLocaleLowerCase();
+   let shown=0;
+   gallery.querySelectorAll('.product-card').forEach(card=>{
+    const title=card.querySelector('h3')?.textContent||'';
+    const match=!query||title.toLocaleLowerCase().includes(query);
+    card.hidden=!match;
+    if(match)shown++;
+   });
+   if(gallerySearchStatus){
+    gallerySearchStatus.textContent=query?(shown?shown+' '+(shown===1?'matching design':'matching designs')+' found.':'No titles match “'+gallerySearch.value.trim()+'”. Try another search.'):'Search the titles of our gallery pieces.';
+   }
+   let empty=gallery.querySelector('.gallery-search-empty');
+   if(!shown&&query){
+    if(!empty){empty=document.createElement('div');empty.className='gallery-search-empty';empty.setAttribute('role','status');gallery.append(empty);}
+    empty.textContent='No matching titles yet. Try a different name, or contact us to ask about a design.';
+   }else if(empty)empty.remove();
+  }
+  if(gallerySearch){
+   gallerySearch.addEventListener('input',filterGalleryByTitle);
+   gallerySearchClear?.addEventListener('click',()=>{gallerySearch.value='';filterGalleryByTitle();gallerySearch.focus();});
+  }
   const gallery=document.getElementById('galleryGrid');
-  if(gallery){gallery.replaceChildren(...products.map(p=>makeCard(p,'#',true)));}
+  if(gallery){gallery.replaceChildren(...products.map(p=>makeCard(p,'#',true)));filterGalleryByTitle();}
   const home=document.querySelector('.home-products');
   if(home){const featured=products.filter(p=>p.featured).slice(0,4);if(featured.length)home.replaceChildren(...featured.map(p=>makeCard(p,'gallery.html')));}
   if(content.settings?.etsyUrl){document.querySelectorAll('a[href*="thingamabobprints.etsy.com"]').forEach(a=>a.href=content.settings.etsyUrl);}
