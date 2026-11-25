@@ -351,3 +351,36 @@ body{background:var(--paper);color:var(--ink)}
 }
 .home-products a:hover .product-img img{transform:none!important}
 @media(max-width:420px){.home-products .product-img{padding:8px!important}}
+
+
+/* Availability labels on gallery photos */
+#galleryGrid .gallery-image-button{position:relative!important}
+.product-availability-badges{
+  position:absolute;top:12px;left:12px;z-index:2;
+  display:flex;flex-direction:column;align-items:flex-start;gap:6px;
+  pointer-events:none;
+}
+.availability-badge{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:7px 9px;border-radius:7px;
+  font:700 9px/1 'Space Grotesk',sans-serif;letter-spacing:.09em;
+  box-shadow:0 2px 8px rgba(35,43,35,.10);
+}
+.availability-badge.digital{background:#dce9d9;color:#365b43}
+.availability-badge.physical{background:#f2dfb8;color:#76551f}
+.purchase-choice-panel{width:min(440px,92vw)}
+.purchase-choice-content{padding:8px 8px 12px}
+.purchase-choice-title{font:600 22px 'Space Grotesk';display:block}
+.purchase-choice-content>p{color:var(--muted);font-size:13px;margin:8px 0 18px}
+.purchase-choice-actions{display:grid;gap:10px}
+.purchase-choice-link{
+  display:flex;align-items:center;justify-content:center;
+  padding:14px 16px;border-radius:7px;text-decoration:none;
+  font:700 13px 'Space Grotesk';text-align:center;
+}
+.purchase-choice-link.digital-choice{background:#dce9d9;color:#365b43}
+.purchase-choice-link.physical-choice{background:#f2dfb8;color:#76551f}
+@media(max-width:520px){
+ .product-availability-badges{top:8px;left:8px;gap:5px}
+ .availability-badge{font-size:8px;padding:6px 7px}
+}
