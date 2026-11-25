@@ -384,3 +384,18 @@ body{background:var(--paper);color:var(--ink)}
  .product-availability-badges{top:8px;left:8px;gap:5px}
  .availability-badge{font-size:8px;padding:6px 7px}
 }
+
+
+/* Purchase links appear inside the existing enlarged gallery photo view */
+.gallery-purchase-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
+.gallery-purchase-actions[hidden],.gallery-purchase-link[hidden]{display:none!important}
+.gallery-purchase-link{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-height:44px;padding:12px 16px;border-radius:7px;
+  text-decoration:none;font:700 12px 'Space Grotesk',sans-serif;
+  transition:transform .18s ease,filter .18s ease;
+}
+.gallery-purchase-link:hover{transform:translateY(-2px);filter:brightness(.97)}
+.gallery-purchase-link.digital{background:#dce9d9;color:#365b43}
+.gallery-purchase-link.physical{background:#f2dfb8;color:#76551f}
+@media(max-width:520px){.gallery-purchase-actions{display:grid;grid-template-columns:1fr}.gallery-purchase-link{width:100%;box-sizing:border-box}}
