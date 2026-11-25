@@ -399,3 +399,11 @@ body{background:var(--paper);color:var(--ink)}
 .gallery-purchase-link.digital{background:#dce9d9;color:#365b43}
 .gallery-purchase-link.physical{background:#f2dfb8;color:#76551f}
 @media(max-width:520px){.gallery-purchase-actions{display:grid;grid-template-columns:1fr}.gallery-purchase-link{width:100%;box-sizing:border-box}}
+
+
+/* Digital download price type shown beside its gallery purchase link */
+.digital-price-status{display:inline-flex;align-items:center;justify-content:center;min-height:36px;padding:8px 10px;border-radius:7px;font:700 10px 'Space Grotesk',sans-serif;letter-spacing:.06em;white-space:nowrap}
+.digital-price-status[hidden]{display:none!important}
+.digital-price-status.free{background:#e5f0df;color:#365b43}
+.digital-price-status.purchasable{background:#f5e7c9;color:#76551f}
+@media(max-width:520px){.gallery-purchase-actions .digital-price-status{justify-content:center}}
