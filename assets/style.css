@@ -324,3 +324,30 @@ body{background:var(--paper);color:var(--ink)}
   #galleryGrid .gallery-image-button,
   #galleryGrid .product-img{padding:8px!important}
 }
+
+
+/* Homepage product cards: do not zoom or crop the product photos */
+.home-products .product-img{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  aspect-ratio:1/1!important;
+  height:auto!important;
+  padding:12px!important;
+  box-sizing:border-box!important;
+  overflow:hidden!important;
+  background:#f1f2ec!important;
+}
+.home-products .product-img img{
+  display:block!important;
+  width:auto!important;
+  height:auto!important;
+  max-width:100%!important;
+  max-height:100%!important;
+  object-fit:contain!important;
+  object-position:center!important;
+  padding:0!important;
+  transform:none!important;
+}
+.home-products a:hover .product-img img{transform:none!important}
+@media(max-width:420px){.home-products .product-img{padding:8px!important}}
