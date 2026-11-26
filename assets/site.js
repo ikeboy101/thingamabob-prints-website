@@ -51,7 +51,43 @@ async function loadManagedContent(){
   const products=Array.isArray(content.products)?content.products:[];
   const safeProductLink=value=>{try{const u=new URL(value,window.location.href);return /^https?:$/.test(u.protocol)?u.href:'';}catch{return '';}};
   const makeCard=(p,link,isGallery=false)=>{const article=document.createElement('article');article.className=isGallery?'gallery-item':'product-card premium-product-card';const imageWrap=document.createElement(isGallery?'button':'div');imageWrap.className=isGallery?'gallery-image-button product-img':'product-img';if(isGallery){imageWrap.type='button';imageWrap.setAttribute('aria-label','View purchase options for '+(p.name||'product'));}const img=document.createElement('img');img.src=p.image||'';img.alt=p.name||'Thingamabob Prints product';img.loading='lazy';imageWrap.append(img);if(isGallery){const badges=document.createElement('div');badges.className='product-availability-badges';if(p.digitalAvailable){const b=document.createElement('span');b.className='availability-badge digital';b.textContent='↓ DIGITAL';badges.append(b);}if(p.physicalAvailable){const b=document.createElement('span');b.className='availability-badge physical';b.textContent='📦 PHYSICAL';badges.append(b);}if(badges.childElementCount)imageWrap.append(badges);imageWrap.addEventListener('click',()=>openGalleryLightbox(p));}const info=document.createElement('div');info.className=isGallery?'gallery-caption':'product-info';const tag=document.createElement('span');tag.className='tag';tag.textContent=p.category||'3D PRINT';const title=document.createElement('h3');title.textContent=p.name||'';const desc=document.createElement('p');desc.textContent=p.description||'';info.append(tag,title,desc);if(isGallery){article.append(imageWrap,info);}else{const a=document.createElement('a');a.href=link;const bottom=document.createElement('div');bottom.className='product-bottom';const label=document.createElement('span');label.textContent='View in gallery';const arrow=document.createElement('span');arrow.className='arrow';arrow.textContent='↗';bottom.append(label,arrow);info.append(bottom);a.append(imageWrap,info);article.append(a);}return article;};
-  function openGalleryLightbox(p){let modal=document.getElementById('galleryLightbox');if(!modal){modal=document.createElement('div');modal.id='galleryLightbox';modal.className='gallery-lightbox';modal.innerHTML='<div class="gallery-lightbox-panel" role="dialog" aria-modal="true" aria-label="Product details"><button class="gallery-lightbox-close" type="button" aria-label="Close photo">×</button><img class="gallery-lightbox-photo" alt=""><div class="gallery-lightbox-copy"><strong></strong><p></p><div class="gallery-purchase-actions"><span class="digital-price-status" hidden></span><a class="gallery-purchase-link digital" target="_blank" rel="noopener noreferrer">↓ Digital Download</a><a class="gallery-purchase-link physical" target="_blank" rel="noopener noreferrer">📦 Buy Physical Print on Etsy</a></div></div></div>';document.body.append(modal);modal.addEventListener('click',e=>{if(e.target===modal||e.target.closest('.gallery-lightbox-close'))modal.classList.remove('open');});}modal.querySelector('.gallery-lightbox-photo').src=p.image||'';modal.querySelector('.gallery-lightbox-photo').alt=p.name||'Product photo';modal.querySelector('.gallery-lightbox-copy strong').textContent=p.name||'';modal.querySelector('.gallery-lightbox-copy p').textContent=p.description||'';const digital=modal.querySelector('.gallery-purchase-link.digital');const digitalStatus=modal.querySelector('.digital-price-status');const physical=modal.querySelector('.gallery-purchase-link.physical');const digitalUrl=p.digitalAvailable?safeProductLink(p.digitalUrl):'';const digitalType=p.digitalPriceType||'purchasable';digitalStatus.hidden=!digitalUrl;digitalStatus.textContent=digitalType==='free'?'🆓 FREE':'💲 PURCHASABLE';digitalStatus.classList.toggle('free',digitalType==='free');digitalStatus.classList.toggle('purchasable',digitalType!=='free');const physicalUrl=p.physicalAvailable?safeProductLink(p.etsyUrl):'';digital.hidden=!digitalUrl;physical.hidden=!physicalUrl;if(digitalUrl)digital.href=digitalUrl;if(physicalUrl)physical.href=physicalUrl;modal.querySelector('.gallery-purchase-actions').hidden=!(digitalUrl||physicalUrl);modal.classList.add('open');modal.querySelector('.gallery-lightbox-close').focus();}
+  function openGalleryLightbox(p){
+   let modal=document.getElementById('galleryLightbox');
+   if(!modal){
+    modal=document.createElement('div');modal.id='galleryLightbox';modal.className='gallery-lightbox';
+    modal.innerHTML='<div class="gallery-lightbox-panel" role="dialog" aria-modal="true" aria-label="Product details"><button class="gallery-lightbox-close" type="button" aria-label="Close photo">×</button><div class="gallery-carousel"><button class="gallery-photo-arrow previous" type="button" aria-label="Previous photo">‹</button><img class="gallery-lightbox-photo" alt=""><button class="gallery-photo-arrow next" type="button" aria-label="Next photo">›</button><span class="gallery-photo-count" aria-live="polite"></span></div><div class="gallery-lightbox-copy"><strong></strong><p></p><div class="gallery-purchase-actions"><span class="digital-price-status" hidden></span><a class="gallery-purchase-link digital" target="_blank" rel="noopener noreferrer">↓ Digital Download</a><a class="gallery-purchase-link physical" target="_blank" rel="noopener noreferrer">📦 Buy Physical Print on Etsy</a></div></div></div>';
+    document.body.append(modal);
+    modal.addEventListener('click',e=>{if(e.target===modal||e.target.closest('.gallery-lightbox-close'))modal.classList.remove('open');});
+   }
+   const photos=[p.image,...(Array.isArray(p.additionalImages)?p.additionalImages:[])].filter((url,i,arr)=>url&&arr.indexOf(url)===i);
+   let current=0;
+   const photo=modal.querySelector('.gallery-lightbox-photo');
+   const prev=modal.querySelector('.gallery-photo-arrow.previous');
+   const next=modal.querySelector('.gallery-photo-arrow.next');
+   const count=modal.querySelector('.gallery-photo-count');
+   const showPhoto=()=>{
+    photo.src=photos[current]||p.image||'';photo.alt=(p.name||'Product photo')+(photos.length>1?' — photo '+(current+1):'');
+    const multiple=photos.length>1;prev.hidden=!multiple;next.hidden=!multiple;count.hidden=!multiple;count.textContent=(current+1)+' / '+photos.length;
+   };
+   prev.onclick=()=>{current=(current-1+photos.length)%photos.length;showPhoto();};
+   next.onclick=()=>{current=(current+1)%photos.length;showPhoto();};
+   modal.onkeydown=e=>{if(e.key==='ArrowLeft'&&photos.length>1){e.preventDefault();prev.click();}if(e.key==='ArrowRight'&&photos.length>1){e.preventDefault();next.click();}if(e.key==='Escape')modal.classList.remove('open');};
+   showPhoto();
+   modal.querySelector('.gallery-lightbox-copy strong').textContent=p.name||'';
+   modal.querySelector('.gallery-lightbox-copy p').textContent=p.description||'';
+   const digital=modal.querySelector('.gallery-purchase-link.digital');
+   const digitalStatus=modal.querySelector('.digital-price-status');
+   const physical=modal.querySelector('.gallery-purchase-link.physical');
+   const digitalUrl=p.digitalAvailable?safeProductLink(p.digitalUrl):'';
+   const digitalType=p.digitalPriceType||'purchasable';
+   digitalStatus.hidden=!digitalUrl;digitalStatus.textContent=digitalType==='free'?'🆓 FREE':'💲 PURCHASABLE';
+   digitalStatus.classList.toggle('free',digitalType==='free');digitalStatus.classList.toggle('purchasable',digitalType!=='free');
+   const physicalUrl=p.physicalAvailable?safeProductLink(p.etsyUrl):'';
+   digital.hidden=!digitalUrl;physical.hidden=!physicalUrl;
+   if(digitalUrl)digital.href=digitalUrl;if(physicalUrl)physical.href=physicalUrl;
+   modal.querySelector('.gallery-purchase-actions').hidden=!(digitalUrl||physicalUrl);
+   modal.classList.add('open');modal.querySelector('.gallery-lightbox-close').focus();
+  }
   const gallerySearch=document.getElementById('gallerySearch');
   const gallerySearchClear=document.getElementById('gallerySearchClear');
   const gallerySearchStatus=document.getElementById('gallerySearchStatus');
