@@ -130,7 +130,10 @@ export async function onRequest({request,env}){
    if(!/^products\/[a-zA-Z0-9_-]+\.(jpg|jpeg|png|webp|gif)$/i.test(key))return new Response("Not found",{status:404});
    const object=await env.IMAGES.get(key);
    if(!object)return new Response("Not found",{status:404});
-   return new Response(object.body,{headers:{"Content-Type":object.httpMetadata?.contentType||"application/octet-stream","Cache-Control":"public, max-age=31536000, immutable","ETag":object.httpEtag}});
+   const ext=key.split(".").pop().toLowerCase();
+   const mimeByExt={jpg:"image/jpeg",jpeg:"image/jpeg",png:"image/png",webp:"image/webp",gif:"image/gif"};
+   const contentType=object.httpMetadata?.contentType||mimeByExt[ext]||"application/octet-stream";
+   return new Response(object.body,{headers:{"Content-Type":contentType,"Cache-Control":"public, max-age=3600","ETag":object.httpEtag}});
   }
   return json({error:"Not found"},404);
  }catch(error){console.error("Thingamabob API error",error);return json({error:"Something went wrong. Please try again."},500);}
