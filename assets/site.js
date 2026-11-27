@@ -126,7 +126,7 @@ async function loadManagedContent(){
    let empty=gallery.querySelector('.gallery-search-empty');
    if(!shown&&(query||activeCollection!=='all')){if(!empty){empty=document.createElement('div');empty.className='gallery-search-empty';empty.setAttribute('role','status');gallery.append(empty);}empty.textContent=query?'No matching titles in this collection. Try a different name or view all creations.':'No products have been added to this collection yet.';}
    else if(empty)empty.remove();
-   document.querySelectorAll('#collectionsGrid [data-collection],.collection-reset').forEach(button=>{button.classList.toggle('active',button.dataset.collection===activeCollection);button.setAttribute('aria-pressed',button.dataset.collection===activeCollection?'true':'false');});
+   document.querySelectorAll('#collectionsGrid [data-collection],.collection-reset,.collection-exit').forEach(button=>{if(button.classList.contains('collection-exit'))button.classList.toggle('active',activeCollection!=='all');else button.classList.toggle('active',button.dataset.collection===activeCollection);button.setAttribute('aria-pressed',button.dataset.collection===activeCollection?'true':'false');});
   }
   if(gallerySearch){
    gallerySearch.addEventListener('input',filterGalleryByTitle);
@@ -142,7 +142,7 @@ async function loadManagedContent(){
     const count=button.querySelector('[data-count]');if(count)count.textContent=matching.length+' '+(matching.length===1?'design':'designs');
     button.addEventListener('click',()=>{activeCollection=key;if(gallerySearch)gallerySearch.value='';filterGalleryByTitle();gallery.scrollIntoView({behavior:'smooth',block:'start'});});
    });
-   document.querySelectorAll('.collection-reset').forEach(button=>button.addEventListener('click',()=>{activeCollection='all';if(gallerySearch)gallerySearch.value='';filterGalleryByTitle();gallery.scrollIntoView({behavior:'smooth',block:'start'});}));
+   document.querySelectorAll('.collection-reset,.collection-exit').forEach(button=>button.addEventListener('click',()=>{activeCollection='all';if(gallerySearch)gallerySearch.value='';filterGalleryByTitle();gallery.scrollIntoView({behavior:'smooth',block:'start'});}));
    filterGalleryByTitle();
   }
   const home=document.querySelector('.home-products');
