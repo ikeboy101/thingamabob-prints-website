@@ -57,6 +57,7 @@ async function loadManagedContent(){
    organizers:/organiz|accessor|display|stand/i
   };
   const getProductCollections=p=>{
+   if(Array.isArray(p.collections))return p.collections.filter(key=>Object.prototype.hasOwnProperty.call(collectionRules,key));
    const text=[p.name,p.category,p.description].filter(Boolean).join(" ");
    return Object.entries(collectionRules).filter(([,pattern])=>pattern.test(text)).map(([key])=>key);
   };
