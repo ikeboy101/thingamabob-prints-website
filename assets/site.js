@@ -115,7 +115,8 @@ async function loadManagedContent(){
     const match=matchesCollection&&matchesSearch;
     card.hidden=!match;card.classList.toggle('search-match',Boolean(query&&match));
     let marker=card.querySelector('.search-match-label');
-    if(query&&match){if(!marker){marker=document.createElement('span');marker.className='search-match-label';marker.textContent='SEARCH MATCH';card.querySelector('.gallery-caption,.product-info')?.prepend(marker);}shown++;}
+    if(match)shown++;
+    if(query&&match){if(!marker){marker=document.createElement('span');marker.className='search-match-label';marker.textContent='SEARCH MATCH';card.querySelector('.gallery-caption,.product-info')?.prepend(marker);}}
     else if(marker)marker.remove();
    });
    if(gallerySearchStatus){
