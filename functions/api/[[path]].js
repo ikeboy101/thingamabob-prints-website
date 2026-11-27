@@ -104,6 +104,13 @@ export async function onRequest({request,env}){
    await env.DB.prepare("INSERT INTO site_content (id,data,updated_at) VALUES ('main',?,CURRENT_TIMESTAMP) ON CONFLICT(id) DO UPDATE SET data=excluded.data, updated_at=CURRENT_TIMESTAMP").bind(JSON.stringify(saved)).run();
    return json({ok:true,added:added.length,products:added});
   }
+  if(path==="/api/gallery-diagnostics"&&request.method==="GET"){
+   if(!await validSession(request,env))return json({error:"Please sign in again."},401);
+   const keys=["products/IMG_1388.jpg","products/IMG_1389.jpg","products/IMG_1670.jpg","products/IMG_1673.jpg","products/IMG_1790.jpg"];
+   const objects=[];
+   for(const key of keys){const obj=await env.IMAGES.head(key);objects.push({key,exists:!!obj,size:obj?.size??0,contentType:obj?.httpMetadata?.contentType??null});}
+   return json({objects});
+  }
   if(path==="/api/admin-data"&&request.method==="GET")return json(await getContent(env));
   if(path==="/api/admin-data"&&request.method==="PUT"){
    if(!await validSession(request,env))return json({error:"Your admin session expired. Please sign in again."},401);
