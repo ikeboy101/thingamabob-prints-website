@@ -445,3 +445,6 @@ body{background:var(--paper);color:var(--ink)}
 .collection-exit.active{display:inline-flex}
 .collection-exit:hover{background:#f0f2ec}
 @media(max-width:760px){.collection-reset-actions{align-self:flex-start}}
+
+.gallery-product-price{margin:9px 0 0!important;color:#596d56;font-weight:700;font-size:14px}
+.gallery-lightbox-price{display:block;margin:8px 0 14px;color:#596d56;font-size:18px}
