@@ -114,6 +114,27 @@ export async function onRequest({request,env}){
    if(!check||check.data!==JSON.stringify(body))return json({error:"The save could not be verified. Please try again."},500);
    return json({ok:true,verified:true});
   }
+  if(path==="/api/bulk-gallery-upload"&&request.method==="POST"){
+   if(!await validSession(request,env))return json({error:"Your admin session expired. Please sign in again."},401);
+   const form=await request.formData();
+   const files=form.getAll("files").filter(file=>file instanceof File&&file.size>0);
+   if(!files.length)return json({error:"Choose JPG photos first."},400);
+   if(files.length>40)return json({error:"Upload no more than 40 photos at once."},413);
+   const allowed={"image/jpeg":"jpg","image/png":"png","image/webp":"webp","image/gif":"gif"};
+   const uploaded=[];
+   for(const file of files){
+    const ext=allowed[file.type];
+    if(!ext) return json({error:"Unsupported file type for "+file.name+". Please use JPG, PNG, WebP or GIF."},415);
+    if(file.size>8*1024*1024)return json({error:file.name+" is larger than 8 MB."},413);
+    const safeName=file.name.replace(/[^a-zA-Z0-9._-]/g,"_");
+    const key="products/"+safeName;
+    await env.IMAGES.put(key,file.stream(),{httpMetadata:{contentType:file.type}});
+    const saved=await env.IMAGES.head(key);
+    if(!saved||saved.size!==file.size)return json({error:"Upload verification failed for "+file.name+". Please retry that file."},500);
+    uploaded.push({name:file.name,size:saved.size});
+   }
+   return json({ok:true,uploaded:uploaded.length,files:uploaded},201);
+  }
   if(path==="/api/admin-data"&&request.method==="POST"){
    if(!await validSession(request,env))return json({error:"Your admin session expired. Please sign in again."},401);
    const form=await request.formData(),file=form.get("file");
