@@ -6,6 +6,7 @@
 <section id="loginPanel" class="admin-panel"><h2>Admin sign in</h2><p>Use your invited Thingamabob Prints admin account to sign in securely.</p><div class="admin-field"><label for="adminPassword">Admin password</label><input id="adminPassword" type="password" autocomplete="current-password" placeholder="Enter your admin password"></div><button id="login" class="btn sage">Sign in</button><p id="loginStatus" class="status" role="status"></p></section>
 <section id="app" class="hidden">
 <div class="admin-panel"><h2>Move your existing website content</h2><p style="color:var(--muted);font-size:13px">Import your current Netlify products, website wording and uploaded photos into Cloudflare. You only need to do this once.</p><button id="importExisting" class="btn light" type="button">Import existing website content</button><p id="importStatus" class="status" role="status"></p></div>
+<div class="admin-panel"><h2>Check gallery photo uploads</h2><p style="color:var(--muted);font-size:13px">Check whether Cloudflare has the actual image data and whether the website can retrieve it.</p><button id="checkGalleryPhotos" class="btn light" type="button">Run photo check</button><pre id="galleryPhotoCheck" class="status" style="white-space:pre-wrap"></pre></div>
 <div class="admin-panel"><h2>Upload gallery JPGs from your phone</h2><p style="color:var(--muted);font-size:13px">Use this uploader instead of the Cloudflare dashboard. Select the extracted JPG files; uploads are checked to make sure the full file size reaches storage.</p><div class="admin-field"><label for="bulkGalleryFiles">Select gallery photos (up to 36)</label><input id="bulkGalleryFiles" type="file" accept="image/jpeg,image/png,image/webp,image/gif" multiple></div><button id="bulkGalleryUpload" class="btn sage" type="button">Upload selected gallery photos</button><p id="bulkGalleryStatus" class="status" role="status"></p></div>
 <div class="admin-panel"><h2>Add uploaded gallery photos</h2><p style="color:var(--muted);font-size:13px">Add the JPG photos already uploaded to Cloudflare R2 as individual gallery products. Exact multi-photo matches will share one scrollable listing. Existing products and settings are preserved.</p><button id="importGallery" class="btn sage" type="button">Add uploaded gallery photos</button><p id="galleryImportStatus" class="status" role="status"></p></div>
 <div class="admin-panel"><div class="admin-top"><h2 style="margin:0">Gallery products</h2><button id="add" class="btn sage">＋ Add product</button></div><p style="color:var(--muted);font-size:13px">Changes are saved to secure online storage when you tap Save changes.</p><div id="products" class="admin-products"></div></div>
@@ -42,6 +43,24 @@ function deleteProduct(id){if(!confirm('Delete this product from the gallery?'))
 async function persist(statusId){const r=await fetch(api,{method:'PUT',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify(content)});const d=await r.json();if(!r.ok)throw Error(d.error||'Save failed');if(d.verified!==true)throw Error('The server did not verify the save. Please try again.');$(statusId).textContent='Saved successfully and verified online.';}
 $('login').onclick=async()=>{const password=$('adminPassword').value;if(!password){$('loginStatus').textContent='Please enter your admin password.';return;}try{const r=await fetch('/api/login',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({password})});const d=await r.json();if(!r.ok)throw Error(d.error||'Sign in failed');$('adminPassword').value='';showApp();}catch(e){$('loginStatus').textContent=e.message;}};
 $('logout').onclick=async()=>{await fetch('/api/logout',{method:'POST',credentials:'same-origin'});content={settings:{},products:[]};$('app').classList.add('hidden');$('loginPanel').classList.remove('hidden');$('logout').classList.add('hidden');};
+$('checkGalleryPhotos').onclick=async()=>{
+ $('checkGalleryPhotos').disabled=true;$('galleryPhotoCheck').textContent='Checking Cloudflare storage and website image delivery…';
+ try{
+  const r=await fetch('/api/gallery-diagnostics',{credentials:'same-origin',cache:'no-store'});const d=await r.json();if(!r.ok)throw Error(d.error||'Diagnostic failed');
+  const lines=[];
+  for(const item of d.objects){
+   let delivery='not tested';
+   if(item.exists&&item.size>0){
+    const image=await fetch('/api/images/'+item.key,{cache:'no-store'});
+    const blob=await image.blob();
+    delivery=image.ok?'served '+image.status+', '+blob.size+' bytes, '+(image.headers.get('content-type')||'unknown type'):'HTTP '+image.status;
+   }
+   lines.push(item.key+': '+(item.exists?'stored '+item.size+' bytes':'MISSING')+'; '+delivery);
+  }
+  $('galleryPhotoCheck').textContent=lines.join('\n');
+ }catch(e){$('galleryPhotoCheck').textContent='Check failed: '+e.message;}
+ finally{$('checkGalleryPhotos').disabled=false;}
+};
 $('bulkGalleryUpload').onclick=async()=>{
  const files=Array.from($('bulkGalleryFiles').files||[]);
  if(!files.length){$('bulkGalleryStatus').textContent='Choose the extracted JPG photos first.';return;}
