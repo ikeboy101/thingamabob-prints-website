@@ -439,3 +439,9 @@ body{background:var(--paper);color:var(--ink)}
 #galleryGrid{scroll-margin-top:22px}
 @media(max-width:760px){.collections-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}.collection-card-copy{padding:11px}.collection-card-copy strong{font-size:14px}.collection-card-copy small{font-size:11px}.collections-heading-row{align-items:flex-start;flex-direction:column}.collection-reset{align-self:flex-start}}
 @media(max-width:380px){.collections-grid{gap:8px}.collection-card-copy{padding:9px}.collection-card-copy strong{font-size:13px}}
+
+.collection-reset-actions{display:flex;align-items:center;gap:8px}
+.collection-exit{display:none;width:42px;height:42px;border:1px solid #d5dbd1;border-radius:50%;background:#fff;color:#465344;font:400 27px/1 Arial,sans-serif;cursor:pointer;align-items:center;justify-content:center}
+.collection-exit.active{display:inline-flex}
+.collection-exit:hover{background:#f0f2ec}
+@media(max-width:760px){.collection-reset-actions{align-self:flex-start}}
